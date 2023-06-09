@@ -27,3 +27,43 @@ resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   location: location
   tags: tags
 }
+
+module appEnvironment './core/host/container-apps-environment.bicep' = {
+  name: 'appEnvironment'
+  scope: rg
+  params: {
+    name: appEnvironmentName
+    location: location
+    tags: tags
+  }
+}
+
+module postgres './core/host/container-app-service.bicep' = {
+  name: 'postgres'
+  scope: rg
+  params: {
+    name: pgSvcName
+    location: location
+    tags: tags
+    environmentId: appEnvironment.outputs.appEnvironmentId
+    serviceType: 'postgres'
+  }
+}
+
+module psqlCli './core/host/container-app.bicep' = {
+  name: 'psqlCli'
+  scope: rg
+  params: {
+    name: pgsqlCliAppName
+    location: location
+    tags: tags
+    environmentId: appEnvironment.outputs.appEnvironmentId
+    serviceId: postgres.outputs.serviceId
+    containerImage: 'mcr.microsoft.com/k8se/services/postgres:14'
+    containerName: 'psql'
+    maxReplicas: 1
+    minReplicas: 1
+    containerCommands: [ '/bin/sleep', 'infinity' ]
+  }
+}
+
