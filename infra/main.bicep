@@ -9,6 +9,10 @@ param environmentName string
 @description('Primary location for all resources')
 param location string
 
+param appEnvironmentName string = 'aca-env'
+param pgSvcName string = 'postgres01'
+param pgsqlCliAppName string = 'psql-cloud-cli-app'
+
 // Tags that should be applied to all resources.
 // 
 // Note that 'azd-service-name' tags should be applied separately to service host resources.
