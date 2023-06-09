@@ -67,3 +67,25 @@ module psqlCli './core/host/container-app.bicep' = {
   }
 }
 
+module pgweb './core/host/container-app.bicep' = {
+  name: 'pgweb'
+  scope: rg
+  params: {
+    name: 'pgweb'
+    location: location
+    tags: tags
+    environmentId: appEnvironment.outputs.appEnvironmentId
+    serviceId: postgres.outputs.serviceId
+    containerImage: 'docker.io/sosedoff/pgweb:latest'
+    containerName: 'pgweb'
+    maxReplicas: 1
+    minReplicas: 1
+    containerCommands: [ '/bin/sh' ]
+    containerArgs: [ 
+      '-c'
+      'PGWEB_DATABASE_URL=$POSTGRES_URL /usr/bin/pgweb --bind=0.0.0.0 --listen=8081'
+    ]
+    targetPort: 8081
+    externalIngress: true
+  }
+}
